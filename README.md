@@ -1,4 +1,4 @@
-# Euclidean Distance Vector Instructions Project
+# Euclidean Distance Vector Instructions Project - Karl Nueckel
 
 This project implements and benchmarks different approaches to calculate Euclidean distance between vectors using various SIMD (Single Instruction, Multiple Data) instruction sets.
 
