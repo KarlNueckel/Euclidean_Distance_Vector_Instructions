@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
   elapsed = (ts1.tv_sec - ts0.tv_sec) * 1000000000 + (ts1.tv_nsec - ts0.tv_nsec);
   
 
-  printf("Elapsed Time (Scalar): %ld, Sum: %lf \n", elapsed/(1000*1000), sum);
+  printf("Elapsed Time (nanoseconds)(Scalar): %ld, Sum: %lf \n", elapsed/(1000*1000), sum);
 
   sum = 0.0;
 
@@ -87,13 +87,12 @@ int main(int argc, char *argv[])
 
   elapsed = (ts1.tv_sec - ts0.tv_sec) * 1000000000 + (ts1.tv_nsec - ts0.tv_nsec);
   
-  printf("Elapsed Time (Vector): %ld, Sum: %lf \n", elapsed/(1000*1000), sum);
+  printf("Elapsed Time (nanoseconds)(Vector): %ld, Sum: %lf \n", elapsed/(1000*1000), sum);
 
   sum = 0.0;
 
   clock_gettime(CLOCK_MONOTONIC, &ts0);
 
-  #ifdef IGNORE
   //VECTOR4 
   for (i=0; i<loops; i++)
     sum += euclid_vector4(s0, s1, dimension);
@@ -101,9 +100,8 @@ int main(int argc, char *argv[])
   clock_gettime(CLOCK_MONOTONIC, &ts1);
 
   elapsed = (ts1.tv_sec - ts0.tv_sec) * 1000000000 + (ts1.tv_nsec - ts0.tv_nsec);
-  printf("%ld,%lf\n", elapsed/(1000*1000), sum);
-  
-  #endif 
+  printf("Elapsed Time (nanoseconds)(Vector4): %ld, Sum: %lf \n", elapsed/(1000*1000), sum);
+
 
   munmap(s0, MEMSZ);
   munmap(s1, MEMSZ);

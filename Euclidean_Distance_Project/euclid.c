@@ -89,6 +89,74 @@ double __attribute__ ((noinline)) euclid_vector(float *s0, float *s1, long dimen
 
 }
 
+
+double __attribute__ ((noinline)) euclid_vector4(float *s0, float *s1, long dimension)
+{
+  long i;
+  double sum = 0.0;
+  __m256 v0, v1, v2, v3, v4, v5, v6, v7, v8;
+  __m256 sum0, sum1, sum2, sum3;
+
+  sum = 0.0;
+  sum0 = _mm256_setzero_ps();
+  sum1 = _mm256_setzero_ps();
+  sum2 = _mm256_setzero_ps();
+  sum3 = _mm256_setzero_ps();
+
+#ifdef PREFETCH
+  for (i=0; i<PREFDIST; i++)
+  {
+    __builtin_prefetch(((const char *)s0) + (i*64), 0, 3);
+    __builtin_prefetch(((const char *)s1) + (i*64), 0, 3);
+  }
+#endif
+
+  for (i=0; i<(dimension/32); i++)
+  { 
+#ifdef PREFETCH
+    __builtin_prefetch(((const char *)s0) + (PREFDIST*64), 0, 3);
+    __builtin_prefetch(((const char *)s1) + (PREFDIST*64), 0, 3);
+#endif
+
+    v0 = _mm256_loadu_ps((float *)(s0+0));
+    v1 = _mm256_loadu_ps((float *)(s0+8));
+    v2 = _mm256_loadu_ps((float *)(s0+16));
+    v3 = _mm256_loadu_ps((float *)(s0+24));
+
+    v4 = _mm256_loadu_ps((float *)(s1+0));
+    v5 = _mm256_loadu_ps((float *)(s1+8));
+    v6 = _mm256_loadu_ps((float *)(s1+16));
+    v7 = _mm256_loadu_ps((float *)(s1+24));
+
+    v0 = _mm256_sub_ps(v0, v4);
+    v1 = _mm256_sub_ps(v1, v5);
+    v2 = _mm256_sub_ps(v2, v6);
+    v3 = _mm256_sub_ps(v3, v7);
+
+    sum0 = _mm256_fmadd_ps(v0, v0, sum0);
+    sum1 = _mm256_fmadd_ps(v1, v1, sum1);
+    sum2 = _mm256_fmadd_ps(v2, v2, sum2);
+    sum3 = _mm256_fmadd_ps(v3, v3, sum3);
+
+    s0 += 32;
+    s1 += 32;
+  }
+
+  // Horizontal sum of all elements in each vector
+  __m256 temp_sum = _mm256_add_ps(sum0, sum1);
+  temp_sum = _mm256_add_ps(temp_sum, sum2);
+  temp_sum = _mm256_add_ps(temp_sum, sum3);
+  
+  // Extract the 8 float values and sum them
+  float temp_array[8];
+  _mm256_storeu_ps(temp_array, temp_sum);
+  sum = temp_array[0] + temp_array[1] + temp_array[2] + temp_array[3] + 
+        temp_array[4] + temp_array[5] + temp_array[6] + temp_array[7];
+
+  return sum;
+}
+
+
 #ifdef IGNORE
 double __attribute__ ((noinline)) euclid_vector(float *s0, float *s1, long dimension)
 {
